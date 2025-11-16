@@ -55,3 +55,9 @@ export async function listBots(workspace_id: string) {
   if (!res.ok) throw new Error('Falha ao listar bots')
   return res.json()
 }
+
+export async function listFlowsByBot(botId: string) {
+  const res = await fetch(`${baseUrl}/bots/${botId}/flows`)
+  if (!res.ok) throw new Error('Falha ao listar flows do bot')
+  return res.json()
+}

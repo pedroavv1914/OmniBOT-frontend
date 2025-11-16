@@ -1,6 +1,6 @@
 import ReactFlow, { Background, Controls, useNodesState, useEdgesState } from 'reactflow'
 import 'reactflow/dist/style.css'
-import { saveFlow } from '../lib/api'
+import { saveFlow, listFlowsByBot, getFlow } from '../lib/api'
 import { useState } from 'react'
 
 const initialNodes: any[] = []
@@ -12,6 +12,7 @@ export default function FlowBuilder() {
   const [savedId, setSavedId] = useState<string>('')
   const [error, setError] = useState<string>('')
   const [botId, setBotId] = useState('')
+  const [flowsList, setFlowsList] = useState<any[]>([])
   const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
   const addNode = (type: string) => {
@@ -62,6 +63,27 @@ export default function FlowBuilder() {
     }
   }
 
+  const loadList = async () => {
+    if (!botId) return
+    try {
+      const list = await listFlowsByBot(botId)
+      setFlowsList(list)
+    } catch (e: any) {
+      setError(e.message || 'Erro ao listar flows')
+    }
+  }
+
+  const loadById = async (id: string) => {
+    try {
+      const flow = await getFlow(id)
+      setNodes(flow.nodes || [])
+      setEdges(flow.edges || [])
+      setSavedId(id)
+    } catch (e: any) {
+      setError(e.message || 'Erro ao carregar pelo ID')
+    }
+  }
+
   const onPublish = async () => {
     if (!botId || !savedId) return
     try {
@@ -83,13 +105,22 @@ export default function FlowBuilder() {
         <button className="px-3 py-1 rounded bg-black text-white" onClick={onSave}>Salvar fluxo</button>
         <button className="px-3 py-1 rounded bg-gray-800 text-white" onClick={onLoadFlow} disabled={!botId}>Carregar fluxo do bot</button>
         {savedId && botId && <button className="px-3 py-1 rounded bg-green-700 text-white" onClick={onPublish}>Publicar fluxo</button>}
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap items-center">
           <button className="px-3 py-1 rounded bg-gray-200" onClick={()=>addNode('message')}>+ Mensagem</button>
           <button className="px-3 py-1 rounded bg-gray-200" onClick={()=>addNode('question')}>+ Pergunta</button>
           <button className="px-3 py-1 rounded bg-gray-200" onClick={()=>addNode('condition')}>+ Condição</button>
           <button className="px-3 py-1 rounded bg-gray-200" onClick={()=>addNode('api')}>+ API</button>
           <button className="px-3 py-1 rounded bg-gray-200" onClick={()=>addNode('delay')}>+ Delay</button>
           <button className="px-3 py-1 rounded bg-gray-200" onClick={()=>addNode('ai')}>+ IA</button>
+          {botId && <button className="px-3 py-1 rounded bg-gray-200" onClick={loadList}>Listar flows</button>}
+          {flowsList.length > 0 && (
+            <select className="border rounded p-1" onChange={e=>loadById(e.target.value)}>
+              <option value="">Selecionar flow</option>
+              {flowsList.map((f:any)=>(
+                <option key={f.id} value={f.id}>{f.id} • {f.status}</option>
+              ))}
+            </select>
+          )}
         </div>
         {savedId && <span className="px-2 py-1 bg-green-100 text-green-800 rounded">ID: {savedId}</span>}
         {error && <span className="px-2 py-1 bg-red-100 text-red-800 rounded">{error}</span>}
