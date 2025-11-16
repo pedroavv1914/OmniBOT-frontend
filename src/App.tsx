@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import Login from './pages/Login'
-import Dashboard from './pages/Dashboard'
-import FlowBuilder from './pages/FlowBuilder'
-import Conversations from './pages/Conversations'
-import Bots from './pages/Bots'
+import Login from './pages/Login.tsx'
+import Dashboard from './pages/Dashboard.tsx'
+import FlowBuilder from './pages/FlowBuilder.tsx'
+import Conversations from './pages/Conversations.tsx'
+import Bots from './pages/Bots.tsx'
 
 export default function App() {
   const [route, setRoute] = useState<'login'|'dashboard'|'flow'|'conversations'|'bots'>('login')
