@@ -43,3 +43,15 @@ export async function sendMessage(conversation_id: string, payload: any) {
   if (!res.ok) throw new Error('Falha ao enviar mensagem')
   return res.json()
 }
+
+export async function createBot(payload: { workspace_id: string, name: string, description?: string }) {
+  const res = await fetch(`${baseUrl}/bots`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+  if (!res.ok) throw new Error('Falha ao criar bot')
+  return res.json()
+}
+
+export async function listBots(workspace_id: string) {
+  const res = await fetch(`${baseUrl}/bots?workspace_id=${encodeURIComponent(workspace_id)}`)
+  if (!res.ok) throw new Error('Falha ao listar bots')
+  return res.json()
+}
