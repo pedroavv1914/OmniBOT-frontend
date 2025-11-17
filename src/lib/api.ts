@@ -4,6 +4,12 @@ function authHeader() {
   return t ? { Authorization: `Bearer ${t}` } : {}
 }
 
+export async function getHealth() {
+  const res = await fetch(`${baseUrl}/health`)
+  if (!res.ok) throw new Error('Falha no health')
+  return res.json()
+}
+
 export async function saveFlow(payload: any) {
   const res = await fetch(`${baseUrl}/bot_flows`, {
     method: 'POST',
