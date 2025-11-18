@@ -10,6 +10,12 @@ export async function getHealth() {
   return res.json()
 }
 
+export async function getDevToken() {
+  const res = await fetch(`${baseUrl}/auth/dev-token`, { method: 'POST' })
+  if (!res.ok) throw new Error('Falha ao obter token de dev')
+  return res.json()
+}
+
 export async function saveFlow(payload: any) {
   const res = await fetch(`${baseUrl}/bot_flows`, {
     method: 'POST',
