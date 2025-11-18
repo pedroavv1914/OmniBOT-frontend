@@ -3,6 +3,7 @@ import { getHealth, getDevToken } from '../lib/api'
 
 export default function Config() {
   const [health, setHealth] = useState<string>('')
+  const [healthObj, setHealthObj] = useState<any>(null)
   const [error, setError] = useState<string>('')
   const [tokenPresent, setTokenPresent] = useState<boolean>(!!localStorage.getItem('auth_token'))
 
@@ -28,9 +29,11 @@ export default function Config() {
   const checkHealth = async () => {
     setError('')
     setHealth('')
+    setHealthObj(null)
     try {
       const r = await getHealth()
       setHealth(JSON.stringify(r))
+      setHealthObj(r)
     } catch (e: any) {
       setError(e.message || 'Erro no health')
     }
@@ -88,6 +91,22 @@ export default function Config() {
           <button className="px-3 py-1 rounded bg-gray-200" onClick={logout} disabled={!tokenPresent}>Logout</button>
         </div>
         {health && <div className="text-green-700 bg-green-100 border border-green-300 rounded p-2 text-sm">{health}</div>}
+        {healthObj && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
+            <div className="border rounded p-2">
+              <div className="text-sm text-gray-600">Supabase</div>
+              <div className="font-mono text-sm">{healthObj.supabase ? 'OK' : 'ausente'}</div>
+            </div>
+            <div className="border rounded p-2">
+              <div className="text-sm text-gray-600">Redis</div>
+              <div className="font-mono text-sm">{healthObj.redis ? 'OK' : 'ausente'}</div>
+            </div>
+            <div className="border rounded p-2">
+              <div className="text-sm text-gray-600">API</div>
+              <div className="font-mono text-sm">{healthObj.ok ? 'OK' : 'falha'}</div>
+            </div>
+          </div>
+        )}
         {error && <div className="text-red-700 bg-red-100 border border-red-300 rounded p-2 text-sm">{error}</div>}
         {claims && (
           <div className="mt-2">
