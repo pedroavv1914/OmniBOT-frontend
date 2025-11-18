@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { getHealth } from '../lib/api'
+import { getHealth, getDevToken } from '../lib/api'
 
 export default function Config() {
   const [health, setHealth] = useState<string>('')
@@ -41,6 +41,21 @@ export default function Config() {
     setTokenPresent(false)
   }
 
+  const getTokenDev = async () => {
+    setError('')
+    try {
+      const r = await getDevToken()
+      if (r?.token) {
+        localStorage.setItem('auth_token', r.token)
+        setTokenPresent(true)
+      } else {
+        setError('Token não recebido')
+      }
+    } catch (e: any) {
+      setError(e.message || 'Erro ao obter token')
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="bg-white p-4 rounded shadow">
@@ -69,6 +84,7 @@ export default function Config() {
         <div className="font-semibold">Verificações</div>
         <div className="flex gap-2">
           <button className="px-3 py-1 rounded bg-gray-800 text-white" onClick={checkHealth}>Testar /health</button>
+          <button className="px-3 py-1 rounded bg-green-700 text-white" onClick={getTokenDev}>Obter token dev</button>
           <button className="px-3 py-1 rounded bg-gray-200" onClick={logout} disabled={!tokenPresent}>Logout</button>
         </div>
         {health && <div className="text-green-700 bg-green-100 border border-green-300 rounded p-2 text-sm">{health}</div>}
