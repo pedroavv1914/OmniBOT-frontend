@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import FlowBuilder from './pages/FlowBuilder'
@@ -13,7 +13,7 @@ export default function App() {
   const gotoProtected = (r: 'dashboard'|'flow'|'conversations'|'bots') => () => setRoute(authed ? r : 'login')
 
   // sincroniza quando token é removido/adicionado em outras abas
-  React.useEffect(() => {
+  useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === 'auth_token') setAuthed(!!localStorage.getItem('auth_token'))
     }
