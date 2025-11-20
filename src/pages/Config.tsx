@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react'
-import { getHealth, getDevToken, setWorkspacePlan } from '../lib/api'
+import { getHealth, getDevToken, setWorkspacePlan, getWorkspaceUsage } from '../lib/api'
 
 export default function Config() {
   const [health, setHealth] = useState<string>('')
   const [healthObj, setHealthObj] = useState<any>(null)
   const [wsId, setWsId] = useState('')
   const [wsPlan, setWsPlan] = useState<'free'|'pro'|'enterprise'>('free')
+  const [wsUsage, setWsUsage] = useState<any>(null)
   const [error, setError] = useState<string>('')
   const [tokenPresent, setTokenPresent] = useState<boolean>(!!localStorage.getItem('auth_token'))
 
@@ -66,6 +67,8 @@ export default function Config() {
     try {
       if (!wsId) throw new Error('Informe o Workspace ID')
       await setWorkspacePlan(wsId, wsPlan)
+      const usage = await getWorkspaceUsage(wsId)
+      setWsUsage(usage)
     } catch (e: any) {
       setError(e.message || 'Erro ao alterar plano')
     }
@@ -131,6 +134,18 @@ export default function Config() {
               </select>
               <button className="px-3 py-1 rounded bg-blue-700 text-white" onClick={changePlan}>Aplicar</button>
             </div>
+            {wsUsage && (
+              <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
+                <div className="border rounded p-2">
+                  <div className="text-gray-600">Plano</div>
+                  <div className="font-mono">{wsUsage.plan}</div>
+                </div>
+                <div className="border rounded p-2">
+                  <div className="text-gray-600">Uso</div>
+                  <div className="font-mono">{wsUsage.count} / {wsUsage.limit} ({wsUsage.period})</div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
         {error && <div className="text-red-700 bg-red-100 border border-red-300 rounded p-2 text-sm">{error}</div>}
