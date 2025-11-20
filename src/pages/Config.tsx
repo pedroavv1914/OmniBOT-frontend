@@ -1,9 +1,11 @@
 import { useState, useMemo } from 'react'
-import { getHealth, getDevToken } from '../lib/api'
+import { getHealth, getDevToken, setWorkspacePlan } from '../lib/api'
 
 export default function Config() {
   const [health, setHealth] = useState<string>('')
   const [healthObj, setHealthObj] = useState<any>(null)
+  const [wsId, setWsId] = useState('')
+  const [wsPlan, setWsPlan] = useState<'free'|'pro'|'enterprise'>('free')
   const [error, setError] = useState<string>('')
   const [tokenPresent, setTokenPresent] = useState<boolean>(!!localStorage.getItem('auth_token'))
 
@@ -59,6 +61,16 @@ export default function Config() {
     }
   }
 
+  const changePlan = async () => {
+    setError('')
+    try {
+      if (!wsId) throw new Error('Informe o Workspace ID')
+      await setWorkspacePlan(wsId, wsPlan)
+    } catch (e: any) {
+      setError(e.message || 'Erro ao alterar plano')
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="bg-white p-4 rounded shadow">
@@ -107,6 +119,20 @@ export default function Config() {
             </div>
           </div>
         )}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-3">
+          <div className="border rounded p-2 md:col-span-2">
+            <div className="text-sm text-gray-600 mb-1">Alterar plano da Workspace</div>
+            <div className="flex gap-2 items-center">
+              <input className="border rounded p-2 flex-1" placeholder="Workspace ID" value={wsId} onChange={e=>setWsId(e.target.value)} />
+              <select className="border rounded p-2" value={wsPlan} onChange={e=>setWsPlan(e.target.value as any)}>
+                <option value="free">free</option>
+                <option value="pro">pro</option>
+                <option value="enterprise">enterprise</option>
+              </select>
+              <button className="px-3 py-1 rounded bg-blue-700 text-white" onClick={changePlan}>Aplicar</button>
+            </div>
+          </div>
+        </div>
         {error && <div className="text-red-700 bg-red-100 border border-red-300 rounded p-2 text-sm">{error}</div>}
         {claims && (
           <div className="mt-2">
