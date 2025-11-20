@@ -77,3 +77,13 @@ export async function listFlowsByBot(botId: string) {
   if (!res.ok) throw new Error('Falha ao listar flows do bot')
   return res.json()
 }
+
+export async function setWorkspacePlan(workspace_id: string, plan: 'free'|'pro'|'enterprise') {
+  const res = await fetch(`${baseUrl}/workspaces/${encodeURIComponent(workspace_id)}/plan`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeader() },
+    body: JSON.stringify({ plan })
+  })
+  if (!res.ok) throw new Error('Falha ao alterar plano')
+  return res.json()
+}
