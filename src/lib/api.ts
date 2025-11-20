@@ -87,3 +87,9 @@ export async function setWorkspacePlan(workspace_id: string, plan: 'free'|'pro'|
   if (!res.ok) throw new Error('Falha ao alterar plano')
   return res.json()
 }
+
+export async function getWorkspaceUsage(workspace_id: string) {
+  const res = await fetch(`${baseUrl}/workspaces/${encodeURIComponent(workspace_id)}/usage`, { headers: { ...authHeader() } })
+  if (!res.ok) throw new Error('Falha ao obter uso da workspace')
+  return res.json()
+}
