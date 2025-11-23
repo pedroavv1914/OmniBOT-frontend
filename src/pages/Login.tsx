@@ -21,7 +21,7 @@ export default function Login({ onSuccess }: Props) {
         const res = await fetch(`${apiUrl}/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: email || 'dev', password })
+          body: JSON.stringify({ email, password })
         })
         if (!res.ok) throw new Error('Falha no login (backend)')
         const r = await res.json()
