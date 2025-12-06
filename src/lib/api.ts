@@ -115,3 +115,14 @@ export async function updateMe(payload: { username?: string, email?: string }) {
   if (!res.ok) throw new Error('Falha ao atualizar usuário')
   return res.json()
 }
+
+export async function createCheckoutSession(workspace_id: string, plan: 'pro'|'enterprise') {
+  const origin = window.location.origin
+  const res = await fetch(`${baseUrl}/stripe/checkout`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeader() },
+    body: JSON.stringify({ workspace_id, plan, success_url: `${origin}/?checkout=success`, cancel_url: `${origin}/?checkout=cancel` })
+  })
+  if (!res.ok) throw new Error('Falha ao criar sessão de checkout')
+  return res.json()
+}
