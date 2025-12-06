@@ -17,28 +17,33 @@ export default function Login({ onSuccess }: Props) {
     setLoading(true)
     setError(undefined)
     try {
-      if (!supabaseUrl || !supabaseAnon) {
-        const res = await fetch(`${apiUrl}/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        })
-        if (!res.ok) throw new Error('Falha no login (backend)')
+      // tenta primeiro pelo backend
+      const res = await fetch(`${apiUrl}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+      if (res.ok) {
         const r = await res.json()
         if (r?.token) {
           localStorage.setItem('auth_token', r.token)
           onSuccess()
-        } else {
-          throw new Error('Token não recebido')
+          setLoading(false)
+          return
         }
-      } else {
+      }
+      // se backend falhar e houver Supabase, tenta Supabase
+      if (supabaseUrl && supabaseAnon) {
         const supabase = createClient(supabaseUrl, supabaseAnon)
         const { data, error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw new Error(error.message)
         const session = await supabase.auth.getSession()
         const token = session.data.session?.access_token
-        if (token) localStorage.setItem('auth_token', token)
+        if (!token) throw new Error('Sessão não iniciada')
+        localStorage.setItem('auth_token', token)
         onSuccess()
+      } else {
+        throw new Error('Falha no login (backend)')
       }
     } catch (e: any) {
       setError(e?.message || 'Erro ao entrar')
