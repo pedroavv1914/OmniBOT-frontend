@@ -9,22 +9,33 @@ import Config from './pages/Config'
 import Profile from './pages/Profile'
 
 export default function App() {
-  const [route, setRoute] = useState<'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'config'|'profile'>('login')
-  const [authed, setAuthed] = useState<boolean>(!!localStorage.getItem('auth_token'))
-  const goto = (r: 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'config') => () => setRoute(r)
-  const gotoProtected = (r: 'dashboard'|'flow'|'conversations'|'bots'|'profile') => () => setRoute(authed ? r : 'login')
+  const ROUTE_KEY = 'app_route'
+  const initialAuthed = !!localStorage.getItem('auth_token')
+  const stored = (localStorage.getItem(ROUTE_KEY) || '') as 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'config'|'profile'
+  const isProtected = (r: string) => r !== 'login' && r !== 'signup'
+  const initialRoute: 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'config'|'profile' =
+    stored && (!isProtected(stored) || initialAuthed) ? stored : (initialAuthed ? 'dashboard' : 'login')
+  const [route, setRoute] = useState<'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'config'|'profile'>(initialRoute)
+  const [authed, setAuthed] = useState<boolean>(initialAuthed)
+  const setRoutePersist = (r: 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'config'|'profile') => { setRoute(r); localStorage.setItem(ROUTE_KEY, r) }
+  const goto = (r: 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'config') => () => setRoutePersist(r)
+  const gotoProtected = (r: 'dashboard'|'flow'|'conversations'|'bots'|'profile') => () => setRoutePersist(authed ? r : 'login')
   const isAuthRoute = route === 'login' || route === 'signup'
 
   // sincroniza quando token é removido/adicionado em outras abas
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === 'auth_token') setAuthed(!!localStorage.getItem('auth_token'))
+      if (e.key === ROUTE_KEY) {
+        const v = e.newValue as any
+        if (v) setRoute(v)
+      }
     }
     window.addEventListener('storage', onStorage)
     return () => window.removeEventListener('storage', onStorage)
   }, [])
   useEffect(() => {
-    if (!authed && !isAuthRoute) setRoute('login')
+    if (!authed && !isAuthRoute) setRoutePersist('login')
   }, [authed, isAuthRoute])
 
   return (
@@ -48,8 +59,8 @@ export default function App() {
         )}
       </header>
       <main className="p-6">
-        {route === 'login' && <Login onSuccess={() => { setAuthed(true); setRoute('dashboard') }} />}
-        {route === 'signup' && <Signup onSuccess={() => { setAuthed(!!localStorage.getItem('auth_token')); setRoute('dashboard') }} />}
+        {route === 'login' && <Login onSuccess={() => { setAuthed(true); setRoutePersist('dashboard') }} />}
+        {route === 'signup' && <Signup onSuccess={() => { setAuthed(!!localStorage.getItem('auth_token')); setRoutePersist('dashboard') }} />}
         {!isAuthRoute && authed && route === 'dashboard' && <Dashboard />}
         {!isAuthRoute && authed && route === 'flow' && <FlowBuilder />}
         {!isAuthRoute && authed && route === 'conversations' && <Conversations />}
