@@ -93,3 +93,25 @@ export async function getWorkspaceUsage(workspace_id: string) {
   if (!res.ok) throw new Error('Falha ao obter uso da workspace')
   return res.json()
 }
+
+export async function register(payload: { email: string, password: string, username?: string }) {
+  const res = await fetch(`${baseUrl}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  if (!res.ok) throw new Error('Falha no cadastro')
+  return res.json()
+}
+
+export async function getMe() {
+  const res = await fetch(`${baseUrl}/users/me`, { headers: { ...authHeader() } })
+  if (!res.ok) throw new Error('Falha ao obter usuário')
+  return res.json()
+}
+
+export async function updateMe(payload: { username?: string, email?: string }) {
+  const res = await fetch(`${baseUrl}/users/me`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(payload) })
+  if (!res.ok) throw new Error('Falha ao atualizar usuário')
+  return res.json()
+}
