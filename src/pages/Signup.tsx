@@ -22,7 +22,7 @@ export default function Signup({ onSuccess }: Props) {
         localStorage.setItem('auth_token', token)
         onSuccess()
       } else if (r?.user_id) {
-        onSuccess()
+        setError('Cadastro iniciado. Verifique seu e-mail para confirmar.')
       } else {
         throw new Error('Resposta inesperada do cadastro')
       }
