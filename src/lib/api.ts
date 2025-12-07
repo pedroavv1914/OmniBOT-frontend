@@ -141,3 +141,13 @@ export async function createWorkspace(name: string) {
 
 export const getActiveWorkspaceId = () => localStorage.getItem('workspace_id') || ''
 export const setActiveWorkspaceId = (id: string) => localStorage.setItem('workspace_id', id)
+export async function requestPasswordReset(email: string) {
+  const origin = window.location.origin
+  const res = await fetch(`${baseUrl}/auth/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, redirectTo: `${origin}/` })
+  })
+  if (!res.ok) throw new Error('Falha ao solicitar reset')
+  return res.json()
+}
