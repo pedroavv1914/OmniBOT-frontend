@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { useState } from 'react'
+import { requestPasswordReset } from '../lib/api'
 
 type Props = { onSuccess: () => void }
 
@@ -12,6 +13,7 @@ export default function Login({ onSuccess }: Props) {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string|undefined>()
+  const [resetInfo, setResetInfo] = useState<string|undefined>()
 
   const signIn = async () => {
     setLoading(true)
@@ -51,6 +53,19 @@ export default function Login({ onSuccess }: Props) {
     setLoading(false)
   }
 
+  const resetPassword = async () => {
+    setLoading(true)
+    setError(undefined)
+    setResetInfo(undefined)
+    try {
+      await requestPasswordReset(email)
+      setResetInfo('Se o e-mail existir, enviamos instruções de recuperação.')
+    } catch (e: any) {
+      setError(e?.message || 'Erro ao solicitar reset')
+    }
+    setLoading(false)
+  }
+
   return (
     <div className="max-w-sm mx-auto bg-white p-6 rounded shadow">
       <h1 className="text-xl font-semibold mb-4">Entrar</h1>
@@ -65,6 +80,10 @@ export default function Login({ onSuccess }: Props) {
       <button className="w-full bg-black text-white rounded p-2" onClick={signIn} disabled={loading}>
         {loading ? 'Carregando...' : 'Entrar'}
       </button>
+      <button className="w-full bg-gray-700 text-white rounded p-2 mt-2" onClick={resetPassword} disabled={loading || !email}>
+        Esqueci minha senha
+      </button>
+      {resetInfo && <div className="text-green-700 mt-2">{resetInfo}</div>}
     </div>
   )
 }
