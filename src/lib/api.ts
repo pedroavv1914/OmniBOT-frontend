@@ -141,6 +141,18 @@ export async function createWorkspace(name: string) {
 
 export const getActiveWorkspaceId = () => localStorage.getItem('workspace_id') || ''
 export const setActiveWorkspaceId = (id: string) => localStorage.setItem('workspace_id', id)
+
+export async function renameWorkspace(id: string, name: string) {
+  const res = await fetch(`${baseUrl}/workspaces/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify({ name }) })
+  if (!res.ok) throw new Error('Falha ao renomear workspace')
+  return res.json()
+}
+
+export async function deleteWorkspace(id: string) {
+  const res = await fetch(`${baseUrl}/workspaces/${id}`, { method: 'DELETE', headers: { ...authHeader() } })
+  if (!res.ok) throw new Error('Falha ao excluir workspace')
+  return res.json()
+}
 export async function requestPasswordReset(email: string) {
   const origin = window.location.origin
   const res = await fetch(`${baseUrl}/auth/reset-password`, {
