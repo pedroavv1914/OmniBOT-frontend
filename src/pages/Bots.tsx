@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { createBot, listBots } from '../lib/api'
+import { createBot, listBots, getActiveWorkspaceId } from '../lib/api'
 
 export default function Bots() {
-  const [workspaceId, setWorkspaceId] = useState('ws-demo')
+  const [workspaceId, setWorkspaceId] = useState(getActiveWorkspaceId() || 'ws-demo')
   const [name, setName] = useState('Meu Bot')
   const [description, setDescription] = useState('')
   const [items, setItems] = useState<any[]>([])
@@ -35,7 +35,7 @@ export default function Bots() {
     }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load() }, [workspaceId])
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
