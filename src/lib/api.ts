@@ -126,3 +126,18 @@ export async function createCheckoutSession(workspace_id: string, plan: 'pro'|'e
   if (!res.ok) throw new Error('Falha ao criar sessão de checkout')
   return res.json()
 }
+
+export async function listWorkspaces() {
+  const res = await fetch(`${baseUrl}/workspaces`, { headers: { ...authHeader() } })
+  if (!res.ok) throw new Error('Falha ao listar workspaces')
+  return res.json()
+}
+
+export async function createWorkspace(name: string) {
+  const res = await fetch(`${baseUrl}/workspaces`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify({ name }) })
+  if (!res.ok) throw new Error('Falha ao criar workspace')
+  return res.json()
+}
+
+export const getActiveWorkspaceId = () => localStorage.getItem('workspace_id') || ''
+export const setActiveWorkspaceId = (id: string) => localStorage.setItem('workspace_id', id)
