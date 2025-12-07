@@ -5,6 +5,7 @@ import { useState } from 'react'
 
 const initialNodes: any[] = []
 const initialEdges: any[] = []
+const nodeTypes: any = {}
 
 export default function FlowBuilder() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
@@ -126,7 +127,7 @@ export default function FlowBuilder() {
         {error && <span className="px-2 py-1 bg-red-100 text-red-800 rounded">{error}</span>}
       </div>
       <div className="h-[70vh] bg-white rounded shadow">
-        <ReactFlow nodes={nodes} edges={edges} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange}>
+        <ReactFlow nodes={nodes} edges={edges} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} nodeTypes={nodeTypes}>
           <Background />
           <Controls />
         </ReactFlow>
