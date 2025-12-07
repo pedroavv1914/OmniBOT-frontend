@@ -7,6 +7,7 @@ import Conversations from './pages/Conversations'
 import Bots from './pages/Bots'
 import Config from './pages/Config'
 import Profile from './pages/Profile'
+import Workspaces from './pages/Workspaces'
 
 export default function App() {
   const ROUTE_KEY = 'app_route'
@@ -15,11 +16,11 @@ export default function App() {
   const isProtected = (r: string) => r !== 'login' && r !== 'signup'
   const initialRoute: 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'config'|'profile' =
     stored && (!isProtected(stored) || initialAuthed) ? stored : (initialAuthed ? 'dashboard' : 'login')
-  const [route, setRoute] = useState<'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'config'|'profile'>(initialRoute)
+  const [route, setRoute] = useState<'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'config'|'profile'|'workspaces'>(initialRoute)
   const [authed, setAuthed] = useState<boolean>(initialAuthed)
-  const setRoutePersist = (r: 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'config'|'profile') => { setRoute(r); localStorage.setItem(ROUTE_KEY, r) }
-  const goto = (r: 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'config') => () => setRoutePersist(r)
-  const gotoProtected = (r: 'dashboard'|'flow'|'conversations'|'bots'|'profile') => () => setRoutePersist(authed ? r : 'login')
+  const setRoutePersist = (r: 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'config'|'profile'|'workspaces') => { setRoute(r); localStorage.setItem(ROUTE_KEY, r) }
+  const goto = (r: 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'config'|'workspaces') => () => setRoutePersist(r)
+  const gotoProtected = (r: 'dashboard'|'flow'|'conversations'|'bots'|'profile'|'workspaces') => () => setRoutePersist(authed ? r : 'login')
   const isAuthRoute = route === 'login' || route === 'signup'
 
   // sincroniza quando token é removido/adicionado em outras abas
@@ -48,8 +49,10 @@ export default function App() {
             <button className="px-3 py-1 rounded bg-gray-200" onClick={gotoProtected('flow')}>Fluxos</button>
             <button className="px-3 py-1 rounded bg-gray-200" onClick={gotoProtected('conversations')}>Conversas</button>
             <button className="px-3 py-1 rounded bg-gray-200" onClick={gotoProtected('bots')}>Bots</button>
+            <button className="px-3 py-1 rounded bg-gray-200" onClick={gotoProtected('workspaces')}>Workspaces</button>
             <button className="px-3 py-1 rounded bg-gray-200" onClick={goto('config')}>Configuração</button>
             <button className="px-3 py-1 rounded bg-gray-200" onClick={gotoProtected('profile')}>Perfil</button>
+            <button className="px-3 py-1 rounded bg-red-600 text-white" onClick={() => { localStorage.removeItem('auth_token'); setAuthed(false); setRoutePersist('login') }}>Logout</button>
           </nav>
         ) : (
           <nav className="flex gap-2">
@@ -66,6 +69,7 @@ export default function App() {
         {!isAuthRoute && authed && route === 'conversations' && <Conversations />}
         {!isAuthRoute && authed && route === 'bots' && <Bots />}
         {!isAuthRoute && authed && route === 'config' && <Config />}
+        {!isAuthRoute && authed && route === 'workspaces' && <Workspaces />}
         {!isAuthRoute && authed && route === 'profile' && <Profile />}
       </main>
     </div>
