@@ -60,6 +60,18 @@ export async function sendMessage(conversation_id: string, payload: any) {
   return res.json()
 }
 
+export async function listConversations(params: { bot_id?: string, workspace_id?: string, limit?: number, offset?: number, status?: string }) {
+  const qs = new URLSearchParams()
+  if (params.bot_id) qs.set('bot_id', params.bot_id)
+  if (params.workspace_id) qs.set('workspace_id', params.workspace_id)
+  if (params.limit !== undefined) qs.set('limit', String(params.limit))
+  if (params.offset !== undefined) qs.set('offset', String(params.offset))
+  if (params.status) qs.set('status', params.status)
+  const res = await fetch(`${baseUrl}/conversations?` + qs.toString(), { headers: { ...authHeader() } })
+  if (!res.ok) throw new Error('Falha ao listar conversas')
+  return res.json()
+}
+
 export async function createBot(payload: { workspace_id: string, name: string, description?: string }) {
   const res = await fetch(`${baseUrl}/bots`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(payload) })
   if (!res.ok) throw new Error('Falha ao criar bot')
