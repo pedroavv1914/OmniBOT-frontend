@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { setWorkspacePlan, getWorkspaceUsage, createCheckoutSession } from '../lib/api'
+import { useEffect, useState } from 'react'
+import { setWorkspacePlan, getWorkspaceUsage, createCheckoutSession, getActiveWorkspaceId } from '../lib/api'
 
 export default function Config() {
   const [wsId, setWsId] = useState('')
@@ -7,13 +7,18 @@ export default function Config() {
   const [wsUsage, setWsUsage] = useState<any>(null)
   const [error, setError] = useState<string>('')
 
+  useEffect(() => { const id = getActiveWorkspaceId(); if (id) { setWsId(id); refreshUsage(id) } }, [])
+
+  const refreshUsage = async (id: string) => {
+    try { const usage = await getWorkspaceUsage(id); setWsUsage(usage) } catch {}
+  }
+
   const changePlan = async () => {
     setError('')
     try {
       if (!wsId) throw new Error('Informe o Workspace ID')
       await setWorkspacePlan(wsId, wsPlan)
-      const usage = await getWorkspaceUsage(wsId)
-      setWsUsage(usage)
+      await refreshUsage(wsId)
     } catch (e: any) {
       setError(e.message || 'Erro ao alterar plano')
     }
