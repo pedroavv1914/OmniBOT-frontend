@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { listWorkspaces, createWorkspace, getActiveWorkspaceId, setActiveWorkspaceId } from '../lib/api'
+import { listWorkspaces, createWorkspace, getActiveWorkspaceId, setActiveWorkspaceId, renameWorkspace, deleteWorkspace } from '../lib/api'
 import { useMemo } from 'react'
 
 export default function Workspaces() {
@@ -9,6 +9,7 @@ export default function Workspaces() {
   const [error, setError] = useState<string|undefined>()
   const [members, setMembers] = useState<any[]>([])
   const [inviteEmail, setInviteEmail] = useState('')
+  const [renameMap, setRenameMap] = useState<Record<string,string>>({})
 
   const load = async () => {
     setError(undefined)
@@ -74,7 +75,12 @@ export default function Workspaces() {
               <div className="font-semibold">{w.name}</div>
               <div className="text-xs text-gray-500">{w.id}</div>
             </div>
-            <button className="px-3 py-1 rounded bg-gray-800 text-white" onClick={()=>choose(w.id)}>{active===w.id?'Selecionada':'Selecionar'}</button>
+            <div className="flex gap-2">
+              <input className="border rounded p-1 text-sm" placeholder="Renomear" value={renameMap[w.id] || ''} onChange={e=>setRenameMap({ ...renameMap, [w.id]: e.target.value })} />
+              <button className="px-3 py-1 rounded bg-gray-800 text-white" onClick={()=>choose(w.id)}>{active===w.id?'Selecionada':'Selecionar'}</button>
+              <button className="px-3 py-1 rounded bg-blue-700 text-white" onClick={async()=>{ try { await renameWorkspace(w.id, renameMap[w.id] || w.name); await load() } catch (e:any) { setError(e?.message||'Erro ao renomear') } }}>Salvar</button>
+              <button className="px-3 py-1 rounded bg-red-700 text-white" onClick={async()=>{ try { await deleteWorkspace(w.id); if (active===w.id) { setActiveWorkspaceId(''); setActive('') } await load(); setMembers([]) } catch (e:any) { setError(e?.message||'Erro ao excluir') } }}>Excluir</button>
+            </div>
           </div>
         ))}
         {items.length===0 && <div className="text-sm text-gray-600">Nenhuma workspace. Crie a primeira acima.</div>}
