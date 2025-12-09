@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { setWorkspacePlan, getWorkspaceUsage, createCheckoutSession, getActiveWorkspaceId } from '../lib/api'
+import { setWorkspacePlan, getWorkspaceUsage, getActiveWorkspaceId } from '../lib/api'
 
 export default function Config() {
   const [wsId, setWsId] = useState('')
@@ -24,17 +24,6 @@ export default function Config() {
     }
   }
 
-  const startCheckout = async () => {
-    setError('')
-    try {
-      if (!wsId) throw new Error('Informe o Workspace ID')
-      if (wsPlan === 'free') throw new Error('Selecione pro ou enterprise para checkout')
-      const s = await createCheckoutSession(wsId, wsPlan as any)
-      if (s?.url) window.location.href = s.url
-    } catch (e: any) {
-      setError(e.message || 'Erro ao iniciar checkout')
-    }
-  }
 
   return (
     <div className="space-y-4">
@@ -49,7 +38,7 @@ export default function Config() {
               <option value="enterprise">enterprise</option>
             </select>
             <button className="px-3 py-1 rounded bg-blue-700 text-white" onClick={changePlan}>Aplicar</button>
-            <button className="px-3 py-1 rounded bg-purple-700 text-white" onClick={startCheckout}>Checkout</button>
+            
           </div>
           {wsUsage && (
             <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
