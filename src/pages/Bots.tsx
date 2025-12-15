@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
-import { createBot, listBots, getActiveWorkspaceId } from '../lib/api'
+import { createBot, listBots, getMe, listNumbers, createNumber, updateNumber, deleteNumber } from '../lib/api'
 
 export default function Bots() {
-  const [workspaceId, setWorkspaceId] = useState(getActiveWorkspaceId() || 'ws-demo')
+  const [ownerId, setOwnerId] = useState('')
   const [name, setName] = useState('Meu Bot')
   const [description, setDescription] = useState('')
+  const [phone, setPhone] = useState('')
   const [items, setItems] = useState<any[]>([])
+  const [numbers, setNumbers] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string|undefined>()
 
@@ -13,8 +15,15 @@ export default function Bots() {
     setLoading(true)
     setError(undefined)
     try {
-      const data = await listBots(workspaceId)
+      if (!ownerId) {
+        const me = await getMe()
+        setOwnerId(me?.auth_user_id || me?.id || '')
+      }
+      const owner = ownerId || (await getMe()).auth_user_id
+      const data = await listBots(owner)
+      const nums = await listNumbers(owner)
       setItems(data)
+      setNumbers(nums)
     } catch (e: any) {
       setError(e.message)
     } finally {
@@ -26,7 +35,8 @@ export default function Bots() {
     setLoading(true)
     setError(undefined)
     try {
-      await createBot({ workspace_id: workspaceId, name, description })
+      const me = ownerId || (await getMe()).auth_user_id
+      await createBot({ owner_id: me, name, description, phone_number: phone })
       await load()
     } catch (e: any) {
       setError(e.message)
@@ -35,13 +45,13 @@ export default function Bots() {
     }
   }
 
-  useEffect(() => { load() }, [workspaceId])
+  useEffect(() => { load() }, [ownerId])
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div className="bg-white p-4 rounded shadow">
         <div className="font-semibold mb-2">Criar Bot</div>
-        <input className="w-full border rounded p-2 mb-2" placeholder="Workspace ID" value={workspaceId} onChange={e=>setWorkspaceId(e.target.value)} />
+        <input className="w-full border rounded p-2 mb-2" placeholder="Número WhatsApp (opcional)" value={phone} onChange={e=>setPhone(e.target.value)} />
         <input className="w-full border rounded p-2 mb-2" placeholder="Nome" value={name} onChange={e=>setName(e.target.value)} />
         <input className="w-full border rounded p-2 mb-4" placeholder="Descrição" value={description} onChange={e=>setDescription(e.target.value)} />
         <button className="w-full bg-black text-white rounded p-2" onClick={create} disabled={loading}>Criar</button>
@@ -56,11 +66,32 @@ export default function Bots() {
           {items.map((b:any) => (
             <li key={b.id} className="border p-2 rounded">
               <div className="font-semibold">{b.name}</div>
-              <div className="text-sm text-gray-600">id: {b.id} • ws: {b.workspace_id}</div>
+              <div className="text-sm text-gray-600">id: {b.id} • owner: {b.owner_id} • fone: {b.phone_number||'-'}</div>
               {b.description && <div className="text-sm">{b.description}</div>}
             </li>
           ))}
         </ul>
+        <div className="mt-6">
+          <div className="font-semibold mb-2">Números</div>
+          <div className="flex gap-2 mb-3">
+            <input className="border rounded p-2 flex-1" placeholder="Novo número" value={phone} onChange={e=>setPhone(e.target.value)} />
+            <button className="px-3 py-1 rounded bg-gray-800 text-white" onClick={async()=>{ try { const owner = ownerId || (await getMe()).auth_user_id; await createNumber({ owner_id: owner, phone_number: phone }); setPhone(''); await load() } catch (e:any) { setError(e.message) } }}>Cadastrar</button>
+          </div>
+          <ul className="space-y-2">
+            {numbers.map((n:any) => (
+              <li key={n.id} className="border p-2 rounded">
+                <div className="text-sm">{n.phone_number}</div>
+                <div className="flex items-center gap-2 mt-2">
+                  <select className="border rounded p-1" value={n.bot_id||''} onChange={async(e)=>{ try { await updateNumber(n.id, { bot_id: e.target.value||undefined }); await load() } catch (err:any) { setError(err.message) } }}>
+                    <option value="">Sem bot</option>
+                    {items.map((b:any)=>(<option key={b.id} value={b.id}>{b.name}</option>))}
+                  </select>
+                  <button className="px-3 py-1 rounded bg-red-700 text-white" onClick={async()=>{ try { await deleteNumber(n.id); await load() } catch (err:any) { setError(err.message) } }}>Remover</button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   )
