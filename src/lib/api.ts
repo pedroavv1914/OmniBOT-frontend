@@ -60,10 +60,9 @@ export async function sendMessage(conversation_id: string, payload: any) {
   return res.json()
 }
 
-export async function listConversations(params: { bot_id?: string, workspace_id?: string, limit?: number, offset?: number, status?: string }) {
+export async function listConversations(params: { bot_id?: string, limit?: number, offset?: number, status?: string }) {
   const qs = new URLSearchParams()
   if (params.bot_id) qs.set('bot_id', params.bot_id)
-  if (params.workspace_id) qs.set('workspace_id', params.workspace_id)
   if (params.limit !== undefined) qs.set('limit', String(params.limit))
   if (params.offset !== undefined) qs.set('offset', String(params.offset))
   if (params.status) qs.set('status', params.status)
@@ -72,14 +71,14 @@ export async function listConversations(params: { bot_id?: string, workspace_id?
   return res.json()
 }
 
-export async function createBot(payload: { workspace_id: string, name: string, description?: string }) {
+export async function createBot(payload: { owner_id: string, name: string, description?: string, phone_number?: string }) {
   const res = await fetch(`${baseUrl}/bots`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(payload) })
   if (!res.ok) throw new Error('Falha ao criar bot')
   return res.json()
 }
 
-export async function listBots(workspace_id: string) {
-  const res = await fetch(`${baseUrl}/bots?workspace_id=${encodeURIComponent(workspace_id)}`, { headers: { ...authHeader() } })
+export async function listBots(owner_id: string) {
+  const res = await fetch(`${baseUrl}/bots?owner_id=${encodeURIComponent(owner_id)}`, { headers: { ...authHeader() } })
   if (!res.ok) throw new Error('Falha ao listar bots')
   return res.json()
 }
@@ -107,7 +106,7 @@ export async function getMe() {
   if (!res.ok) throw new Error('Falha ao obter usuário')
   return res.json()
 }
-
+ 
 export async function updateMe(payload: { username?: string, email?: string }) {
   const res = await fetch(`${baseUrl}/users/me`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(payload) })
   if (!res.ok) throw new Error('Falha ao atualizar usuário')
@@ -115,32 +114,7 @@ export async function updateMe(payload: { username?: string, email?: string }) {
 }
 
 
-export async function listWorkspaces() {
-  const res = await fetch(`${baseUrl}/workspaces`, { headers: { ...authHeader() } })
-  if (!res.ok) throw new Error('Falha ao listar workspaces')
-  return res.json()
-}
-
-export async function createWorkspace(name: string) {
-  const res = await fetch(`${baseUrl}/workspaces`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify({ name }) })
-  if (!res.ok) throw new Error('Falha ao criar workspace')
-  return res.json()
-}
-
-export const getActiveWorkspaceId = () => localStorage.getItem('workspace_id') || ''
-export const setActiveWorkspaceId = (id: string) => localStorage.setItem('workspace_id', id)
-
-export async function renameWorkspace(id: string, name: string) {
-  const res = await fetch(`${baseUrl}/workspaces/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify({ name }) })
-  if (!res.ok) throw new Error('Falha ao renomear workspace')
-  return res.json()
-}
-
-export async function deleteWorkspace(id: string) {
-  const res = await fetch(`${baseUrl}/workspaces/${id}`, { method: 'DELETE', headers: { ...authHeader() } })
-  if (!res.ok) throw new Error('Falha ao excluir workspace')
-  return res.json()
-}
+ 
 export async function requestPasswordReset(email: string) {
   const origin = window.location.origin
   const res = await fetch(`${baseUrl}/auth/reset-password`, {
@@ -149,5 +123,28 @@ export async function requestPasswordReset(email: string) {
     body: JSON.stringify({ email, redirectTo: `${origin}/` })
   })
   if (!res.ok) throw new Error('Falha ao solicitar reset')
+  return res.json()
+}
+export async function listNumbers(owner_id: string) {
+  const res = await fetch(`${baseUrl}/numbers?owner_id=${encodeURIComponent(owner_id)}`, { headers: { ...authHeader() } })
+  if (!res.ok) throw new Error('Falha ao listar números')
+  return res.json()
+}
+
+export async function createNumber(payload: { owner_id: string, phone_number: string, bot_id?: string }) {
+  const res = await fetch(`${baseUrl}/numbers`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(payload) })
+  if (!res.ok) throw new Error('Falha ao criar número')
+  return res.json()
+}
+
+export async function updateNumber(id: string, payload: { phone_number?: string, bot_id?: string }) {
+  const res = await fetch(`${baseUrl}/numbers/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeader() }, body: JSON.stringify(payload) })
+  if (!res.ok) throw new Error('Falha ao atualizar número')
+  return res.json()
+}
+
+export async function deleteNumber(id: string) {
+  const res = await fetch(`${baseUrl}/numbers/${id}`, { method: 'DELETE', headers: { ...authHeader() } })
+  if (!res.ok) throw new Error('Falha ao remover número')
   return res.json()
 }
