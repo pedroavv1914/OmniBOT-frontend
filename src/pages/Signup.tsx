@@ -33,7 +33,8 @@ export default function Signup({ onSuccess }: Props) {
   }
 
   return (
-    <div className="max-w-sm mx-auto bg-white p-6 rounded shadow">
+    <div className="h-full flex items-center justify-center overflow-hidden">
+      <div className="max-w-sm w-full mx-auto bg-white p-6 rounded shadow">
       <h1 className="text-xl font-semibold mb-4">Cadastrar</h1>
       <input className="w-full border rounded p-2 mb-2" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} />
       <input className="w-full border rounded p-2 mb-2" placeholder="Nome de usuário (opcional)" value={username} onChange={e=>setUsername(e.target.value)} />
@@ -43,6 +44,7 @@ export default function Signup({ onSuccess }: Props) {
         {loading ? 'Carregando...' : 'Cadastrar'}
       </button>
       <div className="text-xs text-gray-500 mt-2">API: {apiUrl}</div>
+      </div>
     </div>
   )
 }
