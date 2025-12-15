@@ -64,9 +64,13 @@ export default function App() {
     return () => window.removeEventListener('app:error', handler as any)
   }, [])
 
+  const appBg = isAuthRoute ? 'bg-[#0B0F19]' : 'bg-gray-50'
+  const headerClasses = isAuthRoute ? 'fixed top-0 left-0 right-0 flex items-center justify-between p-4 border-b border-white/10 bg-transparent text-white' : 'flex items-center justify-between p-4 border-b bg-white'
+  const mainClasses = isAuthRoute ? 'pt-16 h-screen overflow-hidden p-0' : 'p-6'
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="flex items-center justify-between p-4 border-b bg-white">
+    <div className={`${isAuthRoute ? 'h-screen overflow-hidden' : 'min-h-screen'} ${appBg}`}>
+      <header className={headerClasses}>
         <div className="font-semibold">OmniBotAI</div>
         {!isAuthRoute && authed ? (
           <nav className="flex gap-2">
@@ -74,19 +78,17 @@ export default function App() {
             <button className="px-3 py-1 rounded bg-gray-200" onClick={gotoProtected('flow')}>Fluxos</button>
             <button className="px-3 py-1 rounded bg-gray-200" onClick={gotoProtected('conversations')}>Conversas</button>
             <button className="px-3 py-1 rounded bg-gray-200" onClick={gotoProtected('bots')}>Bots</button>
-            
-            
             <button className="px-3 py-1 rounded bg-gray-200" onClick={gotoProtected('profile')}>Perfil</button>
             <button className="px-3 py-1 rounded bg-red-600 text-white" onClick={() => { localStorage.removeItem('auth_token'); setAuthed(false); setRoutePersist('login') }}>Logout</button>
           </nav>
         ) : (
           <nav className="flex gap-2">
-            <button className="px-3 py-1 rounded bg-gray-200" onClick={goto('login')}>Login</button>
-            <button className="px-3 py-1 rounded bg-gray-200" onClick={goto('signup')}>Cadastro</button>
+            <button className={`px-3 py-1 rounded ${isAuthRoute ? 'bg-white/10 text-white' : 'bg-gray-200'}`} onClick={goto('login')}>Login</button>
+            <button className={`px-3 py-1 rounded ${isAuthRoute ? 'bg-white/10 text-white' : 'bg-gray-200'}`} onClick={goto('signup')}>Cadastro</button>
           </nav>
         )}
       </header>
-      <main className="p-6">
+      <main className={mainClasses}>
         <div className="fixed top-4 right-4 space-y-2 z-50">
           {alerts.map(a => (
             <div key={a.id} className="max-w-sm bg-white border border-red-300 shadow rounded p-3">
