@@ -155,9 +155,13 @@ export default function Login({ onSuccess }: Props) {
 
               <div className="text-center text-sm text-white/70">
                 Não tem uma conta?{' '}
-                <a className="text-blue-300 hover:text-blue-200 transition" href="/cadastro">
+                <button
+                  type="button"
+                  className="text-blue-300 hover:text-blue-200 transition"
+                  onClick={() => { localStorage.setItem('app_route', 'signup'); window.dispatchEvent(new CustomEvent('app:navigate', { detail: { route: 'signup' } })) }}
+                >
                   Criar conta
-                </a>
+                </button>
               </div>
             </div>
           </div>
