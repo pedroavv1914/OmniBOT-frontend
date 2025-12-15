@@ -5,21 +5,20 @@ import Dashboard from './pages/Dashboard'
 import FlowBuilder from './pages/FlowBuilder'
 import Conversations from './pages/Conversations'
 import Bots from './pages/Bots'
-import Config from './pages/Config'
 import Profile from './pages/Profile'
 import Workspaces from './pages/Workspaces'
 
 export default function App() {
   const ROUTE_KEY = 'app_route'
   const initialAuthed = !!localStorage.getItem('auth_token')
-  const stored = (localStorage.getItem(ROUTE_KEY) || '') as 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'config'|'profile'
+  const stored = (localStorage.getItem(ROUTE_KEY) || '') as 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'profile'
   const isProtected = (r: string) => r !== 'login' && r !== 'signup'
-  const initialRoute: 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'config'|'profile' =
+  const initialRoute: 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'profile' =
     stored && (!isProtected(stored) || initialAuthed) ? stored : (initialAuthed ? 'dashboard' : 'login')
-  const [route, setRoute] = useState<'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'config'|'profile'|'workspaces'>(initialRoute)
+  const [route, setRoute] = useState<'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'profile'|'workspaces'>(initialRoute)
   const [authed, setAuthed] = useState<boolean>(initialAuthed)
-  const setRoutePersist = (r: 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'config'|'profile'|'workspaces') => { setRoute(r); localStorage.setItem(ROUTE_KEY, r) }
-  const goto = (r: 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'config'|'workspaces') => () => setRoutePersist(r)
+  const setRoutePersist = (r: 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'profile'|'workspaces') => { setRoute(r); localStorage.setItem(ROUTE_KEY, r) }
+  const goto = (r: 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'workspaces') => () => setRoutePersist(r)
   const gotoProtected = (r: 'dashboard'|'flow'|'conversations'|'bots'|'profile'|'workspaces') => () => setRoutePersist(authed ? r : 'login')
   const isAuthRoute = route === 'login' || route === 'signup'
   const [alerts, setAlerts] = useState<Array<{ id: string, title: string, detail?: string }>>([])
@@ -76,7 +75,7 @@ export default function App() {
             <button className="px-3 py-1 rounded bg-gray-200" onClick={gotoProtected('conversations')}>Conversas</button>
             <button className="px-3 py-1 rounded bg-gray-200" onClick={gotoProtected('bots')}>Bots</button>
             <button className="px-3 py-1 rounded bg-gray-200" onClick={gotoProtected('workspaces')}>Workspaces</button>
-            <button className="px-3 py-1 rounded bg-gray-200" onClick={goto('config')}>Configuração</button>
+            
             <button className="px-3 py-1 rounded bg-gray-200" onClick={gotoProtected('profile')}>Perfil</button>
             <button className="px-3 py-1 rounded bg-red-600 text-white" onClick={() => { localStorage.removeItem('auth_token'); setAuthed(false); setRoutePersist('login') }}>Logout</button>
           </nav>
@@ -105,7 +104,7 @@ export default function App() {
         {!isAuthRoute && authed && route === 'flow' && <FlowBuilder />}
         {!isAuthRoute && authed && route === 'conversations' && <Conversations />}
         {!isAuthRoute && authed && route === 'bots' && <Bots />}
-        {!isAuthRoute && authed && route === 'config' && <Config />}
+        
         {!isAuthRoute && authed && route === 'workspaces' && <Workspaces />}
         {!isAuthRoute && authed && route === 'profile' && <Profile />}
       </main>
