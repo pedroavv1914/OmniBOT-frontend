@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { createConversation, sendIncomingEvent, listMessages, streamConversation, sendMessage, listConversations, getActiveWorkspaceId } from '../lib/api'
+import { createConversation, sendIncomingEvent, listMessages, streamConversation, sendMessage, listConversations } from '../lib/api'
 
 export default function Conversations() {
   const [botId, setBotId] = useState('')
@@ -13,7 +13,7 @@ export default function Conversations() {
   const [limit, setLimit] = useState(20)
   const [offset, setOffset] = useState(0)
   const [status, setStatus] = useState<string|undefined>()
-  const wsId = getActiveWorkspaceId()
+  
 
   const createConv = async () => {
     const c = await createConversation({ bot_id: botId, channel, contact_identifier: contact })
@@ -49,11 +49,11 @@ export default function Conversations() {
   }
 
   const loadConversations = async () => {
-    const items = await listConversations({ bot_id: botId || undefined, workspace_id: wsId || undefined, limit, offset, status })
+    const items = await listConversations({ bot_id: botId || undefined, limit, offset, status })
     setList(items)
   }
 
-  useEffect(() => { loadConversations() }, [botId, wsId, limit, offset, status])
+  useEffect(() => { loadConversations() }, [botId, limit, offset, status])
 
   useEffect(() => () => { sseRef.current?.close() }, [])
 
