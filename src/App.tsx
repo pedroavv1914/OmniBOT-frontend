@@ -14,8 +14,7 @@ export default function App() {
   const initialAuthed = !!localStorage.getItem('auth_token')
   const stored = (localStorage.getItem(ROUTE_KEY) || '') as 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'profile'
   const isProtected = (r: string) => r !== 'login' && r !== 'signup'
-  const initialRoute: 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'profile' =
-    stored && (!isProtected(stored) || initialAuthed) ? stored : (initialAuthed ? 'dashboard' : 'login')
+  const initialRoute: 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'profile' = initialAuthed ? (stored && isProtected(stored) ? stored : 'dashboard') : 'login'
   const [route, setRoute] = useState<'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'profile'>(initialRoute)
   const [authed, setAuthed] = useState<boolean>(initialAuthed)
   const setRoutePersist = (r: 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'profile') => { setRoute(r); localStorage.setItem(ROUTE_KEY, r) }
@@ -39,6 +38,14 @@ export default function App() {
   useEffect(() => {
     if (!authed && !isAuthRoute) setRoutePersist('login')
   }, [authed, isAuthRoute])
+  useEffect(() => {
+    const handler = (ev: any) => {
+      const r = ev?.detail?.route as 'login'|'signup'|'dashboard'|'flow'|'conversations'|'bots'|'profile' | undefined
+      if (r) setRoutePersist(r)
+    }
+    window.addEventListener('app:navigate', handler as any)
+    return () => window.removeEventListener('app:navigate', handler as any)
+  }, [])
   useEffect(() => {
     const handler = (ev: any) => {
       const d = ev?.detail || {}
