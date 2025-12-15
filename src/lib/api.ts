@@ -90,21 +90,7 @@ export async function listFlowsByBot(botId: string) {
   return res.json()
 }
 
-export async function setWorkspacePlan(workspace_id: string, plan: 'free'|'pro'|'enterprise') {
-  const res = await fetch(`${baseUrl}/workspaces/${encodeURIComponent(workspace_id)}/plan`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeader() },
-    body: JSON.stringify({ plan })
-  })
-  if (!res.ok) throw new Error('Falha ao alterar plano')
-  return res.json()
-}
-
-export async function getWorkspaceUsage(workspace_id: string) {
-  const res = await fetch(`${baseUrl}/workspaces/${encodeURIComponent(workspace_id)}/usage`, { headers: { ...authHeader() } })
-  if (!res.ok) throw new Error('Falha ao obter uso da workspace')
-  return res.json()
-}
+ 
 
 export async function register(payload: { email: string, password: string, username?: string }) {
   const res = await fetch(`${baseUrl}/auth/register`, {
