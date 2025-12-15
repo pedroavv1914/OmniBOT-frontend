@@ -148,3 +148,19 @@ export async function deleteNumber(id: string) {
   if (!res.ok) throw new Error('Falha ao remover número')
   return res.json()
 }
+
+export async function initWhatsapp(number_id: string) {
+  const res = await fetch(`${baseUrl}/numbers/${number_id}/whatsapp/init`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeader() } })
+  if (!res.ok) throw new Error('Falha ao iniciar sessão WhatsApp')
+  return res.json()
+}
+
+export function streamWhatsappStatus(number_id: string) {
+  return new EventSource(`${baseUrl}/numbers/${number_id}/whatsapp/status`)
+}
+
+export async function mockWhatsappScan(number_id: string) {
+  const res = await fetch(`${baseUrl}/numbers/${number_id}/whatsapp/mock-scan`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeader() } })
+  if (!res.ok) throw new Error('Falha ao simular leitura')
+  return res.json()
+}
